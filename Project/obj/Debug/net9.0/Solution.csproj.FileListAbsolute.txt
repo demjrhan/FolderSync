@@ -12,3 +12,4 @@ C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\refint\Sol
 C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.pdb
 C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.genruntimeconfig.cache
 C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\ref\Solution.dll
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.sourcelink.json
