@@ -32,7 +32,6 @@ public class Hub
     private static void DeleteExtras(string sourceDirectoryPath, string replicaDirectoryPath)
     {
         var replicaFiles = Directory.GetFiles(replicaDirectoryPath);
-
         foreach (var replicaFilePath in replicaFiles)
         {
             var replicaFileName = Path.GetFileName(replicaFilePath);
@@ -41,6 +40,17 @@ public class Hub
             if (!File.Exists(sourceFilePath))
             {
                 DeleteFile(replicaFilePath);
+            }
+        }
+        var replicaDirectories = Directory.GetDirectories(replicaDirectoryPath);
+        foreach (var replicaDirectory in replicaDirectories)
+        {
+            var replicaDirectoryName = Path.GetFileName(replicaDirectory);
+            var toDeleteDirectory = Path.Combine(sourceDirectoryPath, replicaDirectoryName);
+
+            if (!Directory.Exists(toDeleteDirectory))
+            {
+                DeleteDirectory(replicaDirectory);
             }
         }
     }
@@ -85,7 +95,6 @@ public class Hub
         }
 
         var sourceDirectories = Directory.GetDirectories(sourceDirectoryPath);
-        
         foreach (var directory in sourceDirectories)
         {
             var sourceDirectoryName = Path.GetFileName(directory);
@@ -95,13 +104,13 @@ public class Hub
     }
 
 
-    public static void CopyFile(string source, string replica)
+    private static void CopyFile(string source, string replica)
     {
         File.Copy(source, replica);
         Log($"Copied: {source} -> {replica}");
     }
 
-    public static void DeleteFile(string path)
+    private static void DeleteFile(string path)
     {
         if (File.Exists(path))
         {
@@ -109,8 +118,17 @@ public class Hub
             Log($"File in path {path} is deleted successfully.");
         }
     }
+    
+    private static void DeleteDirectory(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path);
+            Log($"Directory in path {path} is deleted successfully.");
+        }
+    }
 
-    public static void UpdateFile(string source, string replica)
+    private static void UpdateFile(string source, string replica)
     {
         File.Copy(source, replica, true);
         Log($"Updated: {source} -> {replica}");

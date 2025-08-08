@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <Folder Include="Directories\Replica\" />
+      <Folder Include="Directories\Replica\first\firsa\" />
     </ItemGroup>
 
 </Project>

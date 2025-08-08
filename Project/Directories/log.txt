@@ -1,0 +1,5 @@
+﻿[2025-08-08 23:01] Copied: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\file.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\file.txt
+[2025-08-08 23:01] Copied: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\second\file.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\second\file.txt
+[2025-08-08 23:03] Copied: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\first\inner_first\inner_inner_first\test.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\first\inner_first\inner_inner_first\test.txt
+[2025-08-08 23:03] Copied: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\first\inner_first\inner_inner_first\test2.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\first\inner_first\inner_inner_first\test2.txt
+[2025-08-08 23:15] Directory in path C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\first\firsa is deleted successfully.
