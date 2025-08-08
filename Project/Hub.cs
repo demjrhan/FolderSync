@@ -5,7 +5,6 @@ namespace Solution;
 
 public class Hub
 {
-
     private static string log;
 
     public static void Log(string message)
@@ -22,6 +21,7 @@ public class Hub
         var replicaDirectory = args[1];
         log = args[3];
 
+        MatchDirectories(sourceDirectory, replicaDirectory);
         while (true)
         {
             SynchronizeFiles(sourceDirectory,replicaDirectory);
@@ -42,15 +42,27 @@ public class Hub
             {
                 DeleteFile(replicaFilePath);
             }
-            
         }
     }
-    
+
+    private static void MatchDirectories(string sourceDirectoryPath, string replicaDirectoryPath)
+    {
+        var sourceDirectories = Directory.GetDirectories(sourceDirectoryPath);
+        foreach (var directory in sourceDirectories)
+        {
+            var sourceDirectoryDirectoryName = Path.GetFileName(directory);
+            var replicaDirectoryDirectoryName = Path.Combine(replicaDirectoryPath, sourceDirectoryDirectoryName);
+            if (!File.Exists(replicaDirectoryDirectoryName))
+                Directory.CreateDirectory(replicaDirectoryDirectoryName);
+            MatchDirectories(directory,replicaDirectoryDirectoryName);
+        }
+    }
+
     private static void SynchronizeFiles(string sourceDirectoryPath, string replicaDirectoryPath)
     {
         DeleteExtras(sourceDirectoryPath, replicaDirectoryPath);
         var sourceFiles = Directory.GetFiles(sourceDirectoryPath);
-        
+
         foreach (var sourceFilePath in sourceFiles)
         {
             var sourceFileName = Path.GetFileName(sourceFilePath);
@@ -64,17 +76,25 @@ public class Hub
             {
                 var sourceHash = MD5Hash(sourceFilePath);
                 var replicaHash = MD5Hash(replicaFilePath);
-                
+
                 if (!sourceHash.SequenceEqual(replicaHash))
                 {
                     UpdateFile(sourceFilePath, replicaFilePath);
-                }                
+                }
             }
-            
+        }
+
+        var sourceDirectories = Directory.GetDirectories(sourceDirectoryPath);
+        
+        foreach (var directory in sourceDirectories)
+        {
+            var sourceDirectoryName = Path.GetFileName(directory);
+            var replicaDirectoryName = Path.Combine(replicaDirectoryPath, sourceDirectoryName);
+            SynchronizeFiles(directory,replicaDirectoryName);
         }
     }
-    
-    
+
+
     public static void CopyFile(string source, string replica)
     {
         File.Copy(source, replica);
@@ -87,53 +107,22 @@ public class Hub
         {
             File.Delete(path);
             Log($"File in path {path} is deleted successfully.");
-        } 
+        }
     }
 
     public static void UpdateFile(string source, string replica)
     {
         File.Copy(source, replica, true);
         Log($"Updated: {source} -> {replica}");
-
     }
 
     private static byte[] MD5Hash(string filePath)
     {
-        using(var md5 = MD5.Create())
+        using (var md5 = MD5.Create())
         using (var stream = File.OpenRead(filePath))
         {
             return md5.ComputeHash(stream);
         }
-    }
-
-    private static bool ValidateIfFileExists(string sourceFilePath, string replicaDirectoryPath)
-    {
-        var files = Directory.GetFiles(replicaDirectoryPath);
-        string sourceFileName = Path.GetFileName(sourceFilePath);
-
-        foreach (var file in files)
-        {
-            if (Path.GetFileName(file).Equals(sourceFileName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static bool ValidateIfDirectoryExists(string sourceDirectoryPath, string replicaDirectoryPath)
-    {
-        string sourceDirName = Path.GetFileName(sourceDirectoryPath);
-        var directories = Directory.GetDirectories(replicaDirectoryPath);
-
-        foreach (var dir in directories)
-        {
-            if (Path.GetFileName(dir).Equals(sourceDirName, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
     }
 
 

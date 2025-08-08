@@ -1,5 +1,0 @@
-[2025-08-08 18:54] Copied: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\example.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\example.txt
-[2025-08-08 19:25] Updated: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\example.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\example.txt
-[2025-08-08 19:26] Copied: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\wow.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\wow.txt
-[2025-08-08 19:26] Updated: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\wow.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\wow.txt
-[2025-08-08 19:31] File in path C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\example.txt is deleted successfully.
