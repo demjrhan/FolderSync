@@ -7,13 +7,10 @@ public class Hub
     private static string source = @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source";
     private static string log = @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\log.txt";
 
-    public static void PrintDirectories()
+    public static void Log(string message)
     {
-        var directories = Directory.GetDirectories(root);
-        foreach (var dir in directories)
-        {
-            Console.WriteLine(dir);
-        }
+        string timestamped = $"[{DateTime.Now:yyyy-MM-dd HH:mm}] {message}";
+        File.AppendAllText(log, timestamped + Environment.NewLine);
     }
 
     public static void Synchronize(string[] args)
@@ -26,15 +23,24 @@ public class Hub
     public static void CopyFile(string source, string replica)
     {
         File.Copy(source, replica);
-        Console.WriteLine($"Copied: {source} -> {replica}");
+        Log($"Copied: {source} -> {replica}");
     }
 
     public static void DeleteFile(string path)
     {
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            Log($"File in path {path} is deleted successfully.");
+        } else 
+            Log($"There was no file to delete in path {path}");
     }
 
     public static void UpdateFile(string source, string replica)
     {
+        File.Copy(source, replica, true);
+        Log($"Updated: {source} -> {replica}");
+
     }
 
     private static bool ValidateIfFileExists(string sourceFilePath, string replicaDirectoryPath)
@@ -53,7 +59,7 @@ public class Hub
         return false;
     }
 
-    private static bool ValidateIfDirectoryExists(string sourceDirectoryPath, string replicaDirectoryPath)
+    public static bool ValidateIfDirectoryExists(string sourceDirectoryPath, string replicaDirectoryPath)
     {
         string sourceDirName = Path.GetFileName(sourceDirectoryPath);
         var directories = Directory.GetDirectories(replicaDirectoryPath);

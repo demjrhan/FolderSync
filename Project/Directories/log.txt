@@ -1,0 +1,1 @@
+[2025-08-08 18:54] Copied: C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source\example.txt -> C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica\example.txt
