@@ -87,7 +87,11 @@ public class Hub
                 var sourceHash = MD5Hash(sourceFilePath);
                 var replicaHash = MD5Hash(replicaFilePath);
 
-                if (!sourceHash.SequenceEqual(replicaHash))
+                var sourceLastWrite = File.GetLastWriteTimeUtc(sourceFilePath);
+                var replicaLastWrite = File.GetLastWriteTimeUtc(replicaFilePath);
+                
+                
+                if (!sourceHash.SequenceEqual(replicaHash) || sourceLastWrite > replicaLastWrite)
                 {
                     UpdateFile(sourceFilePath, replicaFilePath);
                 }
