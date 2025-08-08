@@ -1,0 +1,14 @@
+C:\Users\demir\Documents\personal\FolderSync\Project\bin\Debug\net9.0\Solution.exe
+C:\Users\demir\Documents\personal\FolderSync\Project\bin\Debug\net9.0\Solution.deps.json
+C:\Users\demir\Documents\personal\FolderSync\Project\bin\Debug\net9.0\Solution.runtimeconfig.json
+C:\Users\demir\Documents\personal\FolderSync\Project\bin\Debug\net9.0\Solution.dll
+C:\Users\demir\Documents\personal\FolderSync\Project\bin\Debug\net9.0\Solution.pdb
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.AssemblyInfoInputs.cache
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.AssemblyInfo.cs
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.csproj.CoreCompileInputs.cache
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.dll
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\refint\Solution.dll
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.pdb
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\Solution.genruntimeconfig.cache
+C:\Users\demir\Documents\personal\FolderSync\Project\obj\Debug\net9.0\ref\Solution.dll
