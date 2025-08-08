@@ -1,11 +1,11 @@
-﻿namespace Solution;
+﻿using System.Security.Cryptography;
+
+namespace Solution;
 
 public class Hub
 {
-    private static string root = @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories";
-    private static string replica = @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica";
-    private static string source = @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source";
-    private static string log = @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\log.txt";
+
+    private static string log;
 
     public static void Log(string message)
     {
@@ -16,10 +16,62 @@ public class Hub
     public static void Synchronize(string[] args)
     {
         ValidatePaths(args);
-        Console.WriteLine("All inputs are valid. Starting to sync...");
-        /* Continue here for compare, if missing add, if exists update, if extra delete operations with MD5. */
+
+        var sourceDirectory = args[0];
+        var replicaDirectory = args[1];
+        log = args[3];
+        
+        
+        SynchronizeFiles(sourceDirectory,replicaDirectory);
+        
     }
 
+    private static void DeleteExtras(string sourceDirectoryPath, string replicaDirectoryPath)
+    {
+        var replicaFiles = Directory.GetFiles(replicaDirectoryPath);
+
+        foreach (var replicaFilePath in replicaFiles)
+        {
+            var replicaFileName = Path.GetFileName(replicaFilePath);
+            var sourceFilePath = Path.Combine(sourceDirectoryPath, replicaFileName);
+
+            if (!File.Exists(sourceFilePath))
+            {
+                DeleteFile(replicaFilePath);
+            }
+            
+        }
+    }
+    
+    private static void SynchronizeFiles(string sourceDirectoryPath, string replicaDirectoryPath)
+    {
+        DeleteExtras(sourceDirectoryPath, replicaDirectoryPath);
+        var sourceFiles = Directory.GetFiles(sourceDirectoryPath);
+        
+        foreach (var sourceFilePath in sourceFiles)
+        {
+            var sourceFileName = Path.GetFileName(sourceFilePath);
+            var replicaFilePath = Path.Combine(replicaDirectoryPath, sourceFileName);
+
+            if (!File.Exists(replicaFilePath))
+            {
+                CopyFile(sourceFilePath, replicaFilePath);
+            }
+            else
+            {
+                var sourceHash = MD5Hash(sourceFilePath);
+                var replicaHash = MD5Hash(replicaFilePath);
+                
+                if (!sourceHash.SequenceEqual(replicaHash))
+                {
+                    UpdateFile(sourceFilePath, replicaFilePath);
+                }                
+            }
+            
+        }
+    }
+    
+    
     public static void CopyFile(string source, string replica)
     {
         File.Copy(source, replica);
@@ -32,8 +84,7 @@ public class Hub
         {
             File.Delete(path);
             Log($"File in path {path} is deleted successfully.");
-        } else 
-            Log($"There was no file to delete in path {path}");
+        } 
     }
 
     public static void UpdateFile(string source, string replica)
@@ -43,6 +94,14 @@ public class Hub
 
     }
 
+    private static byte[] MD5Hash(string filePath)
+    {
+        using(var md5 = MD5.Create())
+        using (var stream = File.OpenRead(filePath))
+        {
+            return md5.ComputeHash(stream);
+        }
+    }
     private static bool ValidateIfFileExists(string sourceFilePath, string replicaDirectoryPath)
     {
         var files = Directory.GetFiles(replicaDirectoryPath);

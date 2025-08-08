@@ -4,7 +4,13 @@ class Program
 {
     static void Main(string[] args)
     {
-        Hub.CopyFile("C:\\Users\\demir\\Documents\\personal\\FolderSync\\Project\\Directories\\Source\\example.txt",
-            "C:\\Users\\demir\\Documents\\personal\\FolderSync\\Project\\Directories\\Replica\\example.txt");
+        string[] input = new[]
+        {
+            @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Source",
+            @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\Replica",
+            "1200",
+            @"C:\Users\demir\Documents\personal\FolderSync\Project\Directories\log.txt"
+        };
+        Hub.Synchronize(input);
     }
 }
