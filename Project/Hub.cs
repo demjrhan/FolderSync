@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace Solution;
 
@@ -20,10 +21,12 @@ public class Hub
         var sourceDirectory = args[0];
         var replicaDirectory = args[1];
         log = args[3];
-        
-        
-        SynchronizeFiles(sourceDirectory,replicaDirectory);
-        
+
+        while (true)
+        {
+            SynchronizeFiles(sourceDirectory,replicaDirectory);
+            Thread.Sleep(int.Parse(args[2]) * 1000);
+        }
     }
 
     private static void DeleteExtras(string sourceDirectoryPath, string replicaDirectoryPath)
@@ -102,6 +105,7 @@ public class Hub
             return md5.ComputeHash(stream);
         }
     }
+
     private static bool ValidateIfFileExists(string sourceFilePath, string replicaDirectoryPath)
     {
         var files = Directory.GetFiles(replicaDirectoryPath);
@@ -159,7 +163,9 @@ public class Hub
             Environment.Exit(1);
         }
 
-        if (!int.TryParse(args[2], out int intervalInSeconds) || intervalInSeconds <= 0)
+        bool isNumber = int.TryParse(args[2], out var intervalInSeconds);
+
+        if (!isNumber || intervalInSeconds <= 0)
         {
             Console.WriteLine("Interval must be a positive integer.");
             Environment.Exit(1);
