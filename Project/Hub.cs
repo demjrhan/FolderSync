@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Solution;
 
@@ -11,11 +10,12 @@ public class Hub
 
         var sourceDirectory = args[0];
         var replicaDirectory = args[1];
-        var logFile = EnsureLogFile(sourceDirectory, args.Length >= 4 ? args[3] : null);
+        var logFile = EnsureLogFile(args.Length == 4 ? args[3] : null);
         
         
         while (true)
         {
+            EnsureLogFile(null);
             MatchDirectories(sourceDirectory, replicaDirectory, logFile);
             SynchronizeFiles(sourceDirectory, replicaDirectory, logFile);
             Thread.Sleep(int.Parse(args[2]) * 1000);
@@ -28,31 +28,38 @@ public class Hub
         File.AppendAllText(logFile, timestamped + Environment.NewLine);
     }
 
-    private static string CreateLogFile(string sourceDirectoryPath)
+    private static string EnsureLogFile(string? providedPath)
     {
-        var directoryName = Path.GetFileName(sourceDirectoryPath);
-        var fullLength = sourceDirectoryPath.Length - directoryName.Length;
-        var topDir = sourceDirectoryPath[..fullLength];
-        var logFilePath = topDir + "documentation.log";
-        using (File.Create(logFilePath))
-        {
-        }
-        return logFilePath;
-    }
-    private static string EnsureLogFile(string sourceDirectoryPath, string? providedPath)
-    {
+        string basePath = AppDomain.CurrentDomain.BaseDirectory;
+        string logFileName = "documentation.log";
+        string logFilePath = Path.Combine(basePath, logFileName);
+
         if (string.IsNullOrWhiteSpace(providedPath))
         {
-            var created = CreateLogFile(sourceDirectoryPath);
-            Console.WriteLine("Log file was not present in arguments, it created in path " + created);
-            return created;
+            if (File.Exists(logFilePath))
+            {
+                return logFilePath;
+            }
+
+            string? foundPath = Directory
+                .EnumerateFiles(basePath, logFileName, SearchOption.AllDirectories)
+                .FirstOrDefault();
+
+            if (foundPath != null)
+            {
+                return foundPath;
+            }
+
+            Console.WriteLine("Log file created in path " + logFilePath);
+            using (File.Create(logFilePath)) { }
+            return logFilePath;
         }
 
         if (!File.Exists(providedPath))
         {
-            var created = CreateLogFile(sourceDirectoryPath);
-            Console.WriteLine($"Log file was not present in path {providedPath}, it created in path " + created);
-            return created;
+            using (File.Create(logFilePath)) { }
+            Console.WriteLine($"Log file was not present in path {providedPath}, it created in path " + logFilePath);
+            return logFilePath;
         }
 
         return providedPath;
@@ -157,11 +164,12 @@ public class Hub
         }
     }
 
+    /* Recursive:true ensures that it also deletes the directory even though it is populated with files. */
     private static void DeleteDirectory(string directory, string logFile)
     {
         if (Directory.Exists(directory))
         {
-            Directory.Delete(directory);
+            Directory.Delete(directory,recursive: true);
             Log($"Directory in path {directory} is deleted successfully.", logFile);
         }
     }
