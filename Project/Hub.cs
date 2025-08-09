@@ -5,143 +5,177 @@ namespace Solution;
 
 public class Hub
 {
-    private static string log;
-
-    public static void Log(string message)
-    {
-        string timestamped = $"[{DateTime.Now:yyyy-MM-dd HH:mm}] {message}";
-        File.AppendAllText(log, timestamped + Environment.NewLine);
-    }
-
     public static void Synchronize(string[] args)
     {
         ValidatePaths(args);
 
         var sourceDirectory = args[0];
         var replicaDirectory = args[1];
-        log = args[3];
-
-        MatchDirectories(sourceDirectory, replicaDirectory);
+        var logFile = EnsureLogFile(sourceDirectory, args.Length >= 4 ? args[3] : null);
+        
+        
         while (true)
         {
-            SynchronizeFiles(sourceDirectory,replicaDirectory);
+            MatchDirectories(sourceDirectory, replicaDirectory, logFile);
+            SynchronizeFiles(sourceDirectory, replicaDirectory, logFile);
             Thread.Sleep(int.Parse(args[2]) * 1000);
         }
     }
 
-    private static void DeleteExtras(string sourceDirectoryPath, string replicaDirectoryPath)
+    private static void Log(string message, string logFile)
     {
-        var replicaFiles = Directory.GetFiles(replicaDirectoryPath);
-        foreach (var replicaFilePath in replicaFiles)
+        var timestamped = $"[{DateTime.Now:yyyy-MM-dd HH:mm}] {message}";
+        File.AppendAllText(logFile, timestamped + Environment.NewLine);
+    }
+
+    private static string CreateLogFile(string sourceDirectoryPath)
+    {
+        var directoryName = Path.GetFileName(sourceDirectoryPath);
+        var fullLength = sourceDirectoryPath.Length - directoryName.Length;
+        var topDir = sourceDirectoryPath[..fullLength];
+        var logFilePath = topDir + "documentation.log";
+        using (File.Create(logFilePath))
         {
-            var replicaFileName = Path.GetFileName(replicaFilePath);
-            var sourceFilePath = Path.Combine(sourceDirectoryPath, replicaFileName);
+        }
+        return logFilePath;
+    }
+    private static string EnsureLogFile(string sourceDirectoryPath, string? providedPath)
+    {
+        if (string.IsNullOrWhiteSpace(providedPath))
+        {
+            var created = CreateLogFile(sourceDirectoryPath);
+            Console.WriteLine("Log file was not present in arguments, it created in path " + created);
+            return created;
+        }
+
+        if (!File.Exists(providedPath))
+        {
+            var created = CreateLogFile(sourceDirectoryPath);
+            Console.WriteLine($"Log file was not present in path {providedPath}, it created in path " + created);
+            return created;
+        }
+
+        return providedPath;
+    }
+
+    private static void DeleteExtras(string sourceDirectory, string replicaDirectory, string logFile)
+    {
+        var replicaFiles = Directory.GetFiles(replicaDirectory);
+        foreach (var replicaFile in replicaFiles)
+        {
+            var replicaFileName = Path.GetFileName(replicaFile);
+            var sourceFilePath = Path.Combine(sourceDirectory, replicaFileName);
 
             if (!File.Exists(sourceFilePath))
             {
-                DeleteFile(replicaFilePath);
+                DeleteFile(replicaFile, logFile);
             }
         }
-        var replicaDirectories = Directory.GetDirectories(replicaDirectoryPath);
-        foreach (var replicaDirectory in replicaDirectories)
+
+        var replicaSubDirectories = Directory.GetDirectories(replicaDirectory);
+        foreach (var replicaSubDirectory in replicaSubDirectories)
         {
-            var replicaDirectoryName = Path.GetFileName(replicaDirectory);
-            var toDeleteDirectory = Path.Combine(sourceDirectoryPath, replicaDirectoryName);
+            var replicaSubDirectoryName = Path.GetFileName(replicaSubDirectory);
+            var toDeleteDirectory = Path.Combine(sourceDirectory, replicaSubDirectoryName);
 
             if (!Directory.Exists(toDeleteDirectory))
             {
-                DeleteDirectory(replicaDirectory);
+                DeleteDirectory(replicaSubDirectory, logFile);
             }
         }
     }
 
-    private static void MatchDirectories(string sourceDirectoryPath, string replicaDirectoryPath)
+    private static void MatchDirectories(string sourceDirectory, string replicaDirectory, string logFile)
     {
-        var sourceDirectories = Directory.GetDirectories(sourceDirectoryPath);
-        foreach (var directory in sourceDirectories)
+        var sourceSubDirectories = Directory.GetDirectories(sourceDirectory);
+        foreach (var sourceSubDirectory in sourceSubDirectories)
         {
-            var sourceDirectoryDirectoryName = Path.GetFileName(directory);
-            var replicaDirectoryDirectoryName = Path.Combine(replicaDirectoryPath, sourceDirectoryDirectoryName);
-            if (!File.Exists(replicaDirectoryDirectoryName))
-                Directory.CreateDirectory(replicaDirectoryDirectoryName);
-            MatchDirectories(directory,replicaDirectoryDirectoryName);
+            var sourceSubDirectoryName = Path.GetFileName(sourceSubDirectory);
+            var replicaSubDirectory = Path.Combine(replicaDirectory, sourceSubDirectoryName);
+            if (!Directory.Exists(replicaSubDirectory))
+            {
+                Directory.CreateDirectory(replicaSubDirectory);
+                Log($"Directory created: {replicaSubDirectory}", logFile);
+            }
+
+            MatchDirectories(sourceSubDirectory, replicaSubDirectory, logFile);
         }
     }
 
-    private static void SynchronizeFiles(string sourceDirectoryPath, string replicaDirectoryPath)
+    private static void SynchronizeFiles(string sourceDirectory, string replicaDirectory, string logFile)
     {
-        DeleteExtras(sourceDirectoryPath, replicaDirectoryPath);
-        var sourceFiles = Directory.GetFiles(sourceDirectoryPath);
+        DeleteExtras(sourceDirectory, replicaDirectory, logFile);
+        var sourceFiles = Directory.GetFiles(sourceDirectory);
 
-        foreach (var sourceFilePath in sourceFiles)
+        foreach (var sourceFile in sourceFiles)
         {
-            var sourceFileName = Path.GetFileName(sourceFilePath);
-            var replicaFilePath = Path.Combine(replicaDirectoryPath, sourceFileName);
+            var sourceFileName = Path.GetFileName(sourceFile);
+            var replicaFile = Path.Combine(replicaDirectory, sourceFileName);
 
-            if (!File.Exists(replicaFilePath))
+            if (!File.Exists(replicaFile))
             {
-                CopyFile(sourceFilePath, replicaFilePath);
+                CopyFile(sourceFile, replicaFile, logFile);
             }
             else
             {
-                var sourceHash = MD5Hash(sourceFilePath);
-                var replicaHash = MD5Hash(replicaFilePath);
+                var sourceHash = MD5Hash(sourceFile);
+                var replicaHash = MD5Hash(replicaFile);
 
-                var sourceLastWrite = File.GetLastWriteTimeUtc(sourceFilePath);
-                var replicaLastWrite = File.GetLastWriteTimeUtc(replicaFilePath);
-                
-                
+                var sourceLastWrite = File.GetLastWriteTimeUtc(sourceFile);
+                var replicaLastWrite = File.GetLastWriteTimeUtc(replicaFile);
+
+
                 if (!sourceHash.SequenceEqual(replicaHash) || sourceLastWrite > replicaLastWrite)
                 {
-                    UpdateFile(sourceFilePath, replicaFilePath);
+                    UpdateFile(sourceFile, replicaFile, logFile);
                 }
             }
         }
 
-        var sourceDirectories = Directory.GetDirectories(sourceDirectoryPath);
-        foreach (var directory in sourceDirectories)
+        var sourceSubDirectories = Directory.GetDirectories(sourceDirectory);
+        foreach (var sourceSubDirectory in sourceSubDirectories)
         {
-            var sourceDirectoryName = Path.GetFileName(directory);
-            var replicaDirectoryName = Path.Combine(replicaDirectoryPath, sourceDirectoryName);
-            SynchronizeFiles(directory,replicaDirectoryName);
+            var sourceSubDirectoryName = Path.GetFileName(sourceSubDirectory);
+            var replicaSubDirectory = Path.Combine(replicaDirectory, sourceSubDirectoryName);
+            SynchronizeFiles(sourceSubDirectory, replicaSubDirectory, logFile);
         }
     }
 
 
-    private static void CopyFile(string source, string replica)
+    private static void CopyFile(string source, string replica, string logFile)
     {
         File.Copy(source, replica);
-        Log($"Copied: {source} -> {replica}");
+        Log($"Copied: {source} -> {replica}", logFile);
     }
 
-    private static void DeleteFile(string path)
+    private static void DeleteFile(string file, string logFile)
     {
-        if (File.Exists(path))
+        if (File.Exists(file))
         {
-            File.Delete(path);
-            Log($"File in path {path} is deleted successfully.");
-        }
-    }
-    
-    private static void DeleteDirectory(string path)
-    {
-        if (Directory.Exists(path))
-        {
-            Directory.Delete(path);
-            Log($"Directory in path {path} is deleted successfully.");
+            File.Delete(file);
+            Log($"File in path {file} is deleted successfully.", logFile);
         }
     }
 
-    private static void UpdateFile(string source, string replica)
+    private static void DeleteDirectory(string directory, string logFile)
+    {
+        if (Directory.Exists(directory))
+        {
+            Directory.Delete(directory);
+            Log($"Directory in path {directory} is deleted successfully.", logFile);
+        }
+    }
+
+    private static void UpdateFile(string source, string replica, string logFile)
     {
         File.Copy(source, replica, true);
-        Log($"Updated: {source} -> {replica}");
+        Log($"Updated: {source} -> {replica}", logFile);
     }
 
-    private static byte[] MD5Hash(string filePath)
+    private static byte[] MD5Hash(string file)
     {
         using (var md5 = MD5.Create())
-        using (var stream = File.OpenRead(filePath))
+        using (var stream = File.OpenRead(file))
         {
             return md5.ComputeHash(stream);
         }
@@ -150,31 +184,47 @@ public class Hub
 
     private static void ValidatePaths(string[] args)
     {
-        if (args.Length != 4)
+        if (args.Length < 3 || args.Length > 4)
         {
-            Console.WriteLine("Usage: [sourcePath] [replicaPath] [intervalInSeconds] [logFilePath]");
+            Console.WriteLine("Usage: [sourcePath] [replicaPath] [intervalInSeconds] [logFilePath] -> Optional");
+            Environment.Exit(1);
+        }
+        
+        var sourcePath = args[0];
+        var replicaPath = args[1];
+        var interval = args[2];
+        
+        if (string.IsNullOrWhiteSpace(sourcePath))
+        {
+            Console.WriteLine("Source directory path cannot be empty.");
             Environment.Exit(1);
         }
 
-        if (!Directory.Exists(args[0]))
+        if (string.IsNullOrWhiteSpace(replicaPath))
         {
-            Console.WriteLine("Source directory does not exist: " + args[0]);
+            Console.WriteLine("Replica directory path cannot be empty.");
             Environment.Exit(1);
         }
 
-        if (!Directory.Exists(args[1]))
+        if (string.IsNullOrWhiteSpace(interval))
         {
-            Console.WriteLine("Replica directory does not exist: " + args[1]);
+            Console.WriteLine("Interval cannot be empty.");
+            Environment.Exit(1);
+        }
+        
+        if (!Directory.Exists(sourcePath))
+        {
+            Console.WriteLine("Source directory does not exist: " + sourcePath);
             Environment.Exit(1);
         }
 
-        if (!File.Exists(args[3]))
+        if (!Directory.Exists(replicaPath))
         {
-            Console.WriteLine("Replica directory does not exist: " + args[3]);
+            Console.WriteLine("Replica directory does not exist: " + replicaPath);
             Environment.Exit(1);
         }
 
-        bool isNumber = int.TryParse(args[2], out var intervalInSeconds);
+        bool isNumber = int.TryParse(interval, out var intervalInSeconds);
 
         if (!isNumber || intervalInSeconds <= 0)
         {
