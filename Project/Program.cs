@@ -4,6 +4,11 @@ namespace Solution;
 
 class Program
 {
+    static void Main(string[] args)
+    {
+        Synchronize(args);
+    }
+
     /* Main sync method; Synchronize the given directories source and replica in args.
  Infinite loop with breaks with given interval.
  Before each loop validating the program did not break and log file still exists.*/
@@ -277,15 +282,11 @@ files recursively to find any kind of .log file. */
 
         if (String.Equals(sourcePath, replicaPath))
             throw new ArgumentException("Source and Replica directories must be different than each other.");
-        
+
         bool isNumber = int.TryParse(interval, out var intervalInSeconds);
         if (!isNumber || intervalInSeconds <= 0)
         {
             throw new ArgumentException("Interval must be a positive integer.");
         }
-    }
-    static void Main(string[] args)
-    {
-        Synchronize(args);
     }
 }
