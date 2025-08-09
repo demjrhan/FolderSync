@@ -278,8 +278,7 @@ files recursively to find any kind of .log file. */
         bool isNumber = int.TryParse(interval, out var intervalInSeconds);
         if (!isNumber || intervalInSeconds <= 0)
         {
-            Console.WriteLine("Interval must be a positive integer.");
-            Environment.Exit(1);
+            throw new ArgumentException("Interval must be a positive integer.");
         }
     }
     static void Main(string[] args)
