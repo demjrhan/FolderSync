@@ -6,8 +6,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("Startup: console test");
-        Console.Out.Flush();
         Synchronize(args);
     }
 
