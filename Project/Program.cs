@@ -68,7 +68,7 @@ files recursively to find any kind of .log file. */
             {
             }
 
-            Console.WriteLine("Log file created in path " + logFilePath);
+            Console.WriteLine($"Log file created in path {logFilePath}");
             Log("Log file created in path " + logFilePath, logFilePath);
 
             return logFilePath;
@@ -89,7 +89,7 @@ files recursively to find any kind of .log file. */
             {
             }
 
-            Console.WriteLine($"Log file was not present in path {providedPath}, it created in path " + logFilePath);
+            Console.WriteLine($"Log file was not present in path {providedPath}, it created in path {logFilePath}");
             Log($"Log file was not present in path {providedPath}, it created in path " + logFilePath, logFilePath);
             return logFilePath;
         }
@@ -195,7 +195,7 @@ files recursively to find any kind of .log file. */
             throw new ArgumentException("Source file can not be null. Check the given path.\n" +
                                         "Source path: " + source);
         File.Copy(source, replica);
-        Console.WriteLine($"Copied: {source} -> {replica}", logFile);
+        Console.WriteLine($"Copied: {source} -> {replica}");
         Log($"Copied: {source} -> {replica}", logFile);
     }
 
@@ -206,7 +206,7 @@ files recursively to find any kind of .log file. */
             throw new ArgumentException("Given file to delete does not exists. Check the given path.\n" +
                                         "Path: " + file);
         File.Delete(file);
-        Console.WriteLine($"File in path {file} is deleted successfully.", logFile);
+        Console.WriteLine($"File in path {file} is deleted successfully.");
         Log($"File in path {file} is deleted successfully.", logFile);
     }
 
@@ -218,7 +218,7 @@ files recursively to find any kind of .log file. */
             throw new ArgumentException("Given directory to delete does not exists. Check the given path.\n" +
                                         "Path: " + directory);
         Directory.Delete(directory, recursive: true);
-        Console.WriteLine($"Directory in path {directory} is deleted successfully.", logFile);
+        Console.WriteLine($"Directory in path {directory} is deleted successfully.");
         Log($"Directory in path {directory} is deleted successfully.", logFile);
     }
 
@@ -229,7 +229,7 @@ files recursively to find any kind of .log file. */
         {
             File.Copy(source, replica, true);
 
-            Console.WriteLine($"Updated: {source} -> {replica}", logFile);
+            Console.WriteLine($"Updated: {source} -> {replica}");
             Log($"Updated: {source} -> {replica}", logFile);
         }
         else if (File.Exists(source) && !File.Exists(replica))
