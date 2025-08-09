@@ -7,7 +7,7 @@ class Program
     /* Main sync method; Synchronize the given directories source and replica in args.
  Infinite loop with breaks with given interval.
  Before each loop validating the program did not break and log file still exists.*/
-    public static void Synchronize(string[] args)
+    private static void Synchronize(string[] args)
     {
         try
         {
@@ -20,7 +20,7 @@ class Program
             while (true)
             {
                 ValidatePaths(args);
-                EnsureLogFile(null);
+                logFile = EnsureLogFile(logFile);
                 MatchDirectories(sourceDirectory, replicaDirectory, logFile);
                 SynchronizeFiles(sourceDirectory, replicaDirectory, logFile);
                 Thread.Sleep(int.Parse(args[2]) * 1000);
