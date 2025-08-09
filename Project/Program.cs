@@ -275,6 +275,9 @@ files recursively to find any kind of .log file. */
         if (!Directory.Exists(replicaPath))
             throw new DirectoryNotFoundException("Replica directory does not exist: " + replicaPath);
 
+        if (String.Equals(sourcePath, replicaPath))
+            throw new ArgumentException("Source and Replica directories must be different than each other.");
+        
         bool isNumber = int.TryParse(interval, out var intervalInSeconds);
         if (!isNumber || intervalInSeconds <= 0)
         {
